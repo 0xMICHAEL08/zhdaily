@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import HomeHead from '../component/HomeHead';
 import _ from '../assets/utils';
 import './Home.less';
-import { Swiper, Image } from 'antd-mobile';
+import { Swiper, Image, Divider, DotLoading } from 'antd-mobile';
 import { Link } from 'react-router-dom';
 import api from '../api/index';
+import NewsItem from '../component/NewsItem';
+import SkeletonAgain from '../component/SkeletonAgain';
 
 const Home = function Home() {
   /* 创建所需状态 */
@@ -53,6 +55,36 @@ const Home = function Home() {
             })}
           </Swiper>
         ) : null}
+      </div>
+
+      {/* 新闻列表 */}
+      {/* <SkeletonAgain /> */}
+
+      <div className="news-box">
+        <Divider contentPosition="left">12月23日</Divider>
+        <div className="list">
+          <NewsItem />
+          <NewsItem />
+          <NewsItem />
+          <NewsItem />
+          <NewsItem />
+        </div>
+      </div>
+      <div className="news-box">
+        <Divider contentPosition="left">12月23日</Divider>
+        <div className="list">
+          <NewsItem />
+          <NewsItem />
+          <NewsItem />
+          <NewsItem />
+          <NewsItem />
+        </div>
+      </div>
+
+      {/* 加载更多 */}
+      <div className="loadmore-box">
+        <DotLoading />
+        数据加载中
       </div>
     </div>
   );
