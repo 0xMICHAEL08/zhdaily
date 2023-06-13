@@ -18,7 +18,7 @@ const HomeHead = function HomeHead(props) {
     <header className="home-head-box">
       <div className="info">
         <div className="time">
-          <span>{time.day}</span>
+          <span>{time.day.replace(/0(\d)/, '$1')}</span>
           <span>{time.month}</span>
         </div>
         <h2 className="title">知乎日报</h2>

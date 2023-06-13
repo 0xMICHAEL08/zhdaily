@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import HomeHead from '../component/HomeHead';
 import _ from '../assets/utils';
 import './Home.less';
@@ -10,8 +10,12 @@ import SkeletonAgain from '../component/SkeletonAgain';
 
 const Home = function Home() {
   /* 创建所需状态 */
-  let [today, setToday] = useState(_.formatTime(null, '{0}{1}{2}')),
-    [bannerData, setBannerData] = useState([]);
+  const [today, setToday] = useState(_.formatTime(null, '{0}{1}{2}')),
+    [bannerData, setBannerData] = useState([]),
+    [newsList, setNewsList] = useState([]),
+    [isLoading, setIsLoading] = useState(false);
+
+  let loadMore = useRef(); // loadMore.current获取当前DOM元素
 
   /* 第一次渲染完毕，向服务器发送数据请求 */
   useEffect(() => {
@@ -21,9 +25,47 @@ const Home = function Home() {
         let { date, stories, top_stories } = await api.queryNewsLatest();
         setToday(date);
         setBannerData(top_stories);
+
+        newsList.push({
+          date,
+          stories,
+        });
+        setNewsList([...newsList]);
       } catch (_) {}
     })();
   }, []);
+
+  const handleIntersection = useCallback(
+    async (changes) => {
+      let { isIntersecting } = changes[0];
+      if (isIntersecting && !isLoading) {
+        // 触底且未在加载中
+        setIsLoading(true);
+        try {
+          // 获取新闻列表中最后一项的日期，发送给服务器，拿到更前一天的数据
+          let time = newsList[newsList.length - 1]['date'];
+          let res = await api.queryNewsBefore(time);
+          setNewsList((prevNewsList) => [...prevNewsList, res]);
+        } catch (_) {}
+
+        setIsLoading(false);
+      }
+    },
+    [isLoading]
+  );
+
+  /* 第一次渲染完毕：设置监听器，实现触底加载 */
+  useEffect(() => {
+    let ob = new IntersectionObserver(handleIntersection);
+    let loadMoreBox = loadMore.current;
+    ob.observe(loadMore.current);
+
+    // 组件销毁释放的时候：手动销毁监听器
+    return () => {
+      ob.unobserve(loadMoreBox);
+      ob = null;
+    };
+  }, [handleIntersection]);
 
   return (
     <div className="home-box">
@@ -58,31 +100,40 @@ const Home = function Home() {
       </div>
 
       {/* 新闻列表 */}
-      {/* <SkeletonAgain /> */}
-
-      <div className="news-box">
-        <Divider contentPosition="left">12月23日</Divider>
-        <div className="list">
-          <NewsItem />
-          <NewsItem />
-          <NewsItem />
-          <NewsItem />
-          <NewsItem />
-        </div>
-      </div>
-      <div className="news-box">
-        <Divider contentPosition="left">12月23日</Divider>
-        <div className="list">
-          <NewsItem />
-          <NewsItem />
-          <NewsItem />
-          <NewsItem />
-          <NewsItem />
-        </div>
-      </div>
+      {newsList.length === 0 ? (
+        <SkeletonAgain />
+      ) : (
+        <>
+          {newsList.map((item, index) => {
+            let { date, stories } = item;
+            return (
+              <div className="news-box" key={date}>
+                {index !== 0 ? (
+                  <Divider contentPosition="left">
+                    {_.formatTime(date, '{1}月{2}日')
+                      .replace(/0(\d)月/, '$1月')
+                      .replace(/0(\d)日/, '$1日')}
+                  </Divider>
+                ) : null}
+                <div className="list">
+                  {stories.map((cur) => {
+                    return <NewsItem key={cur.id} info={cur} />;
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
 
       {/* 加载更多 */}
-      <div className="loadmore-box">
+      <div
+        className="loadmore-box"
+        ref={loadMore}
+        style={{
+          display: newsList.length === 0 ? 'none' : 'block',
+        }}
+      >
         <DotLoading />
         数据加载中
       </div>
