@@ -22,6 +22,21 @@ const queryStoryExtra = (id) => {
   return http.get('/api/story_extra', { params: { id } });
 };
 
+/* 发送验证码 */
+const sendPhoneCode = (phone) => {
+  return http.post('/api/phone_code', {
+    phone,
+  });
+};
+
+/* 登录/注册 */
+const login = (phone, code) => {
+  return http.post('/api/login', {
+    phone,
+    code,
+  });
+};
+
 /* 暴露API */
 const api = {
   queryNewsLatest,

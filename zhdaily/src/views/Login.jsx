@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Toast } from 'antd-mobile';
 import NavBarAgain from '../component/NavBarAgain';
+import ButtonAgain from '../component/ButtonAgain';
 import './Login.less';
 
 /* 自定义表单校验规则 */
@@ -24,20 +25,34 @@ const validate = {
 
 const Login = function Login(props) {
   /* 状态 */
-  const [formIns] = Form.useForm();
+  const [formIns] = Form.useForm(),
+    [disabled, setDisabled] = useState(false),
+    [sendText, setSendText] = useState('发送验证码');
 
   /* 表单提交 */
-  const submit = (values) => {
-    // 表单校验已经成功了
+  const delay = (interval = 1000) => {
+    // 防抖处理
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, interval);
+    });
+  };
+  const submit = async (values) => {
     // values: Form自动收集的每个表单的信息
-   
+    try {
+      await formIns.validateFields(); // 不填参数，对每一项都做校验
+      let values = formIns.getFieldValue(); // 获取表单信息：{phone: '...', code: '...'}
+      await delay(3000);
+    } catch (_) {}
   };
 
   /* 发送验证码 */
   const send = async () => {
     try {
-      await formIns.validateFields(['phone']); // validateFields要求传入数组
-      // 手机号格式校验通过
+      // Form组件会找到名为"phone"的Form.Item，然后执行它的校验规则
+      await formIns.validateFields(['phone']);
+      await delay(3000);
     } catch (_) {}
   };
 
@@ -49,11 +64,10 @@ const Login = function Login(props) {
         layout="horizontal"
         style={{ '--border-top': 'none' }}
         footer={
-          <Button type="submit" color="primary">
+          <ButtonAgain color="primary" onClick={submit}>
             提交
-          </Button>
+          </ButtonAgain>
         }
-        onFinish={submit} // 提交表单且数据验证成功后触发
         form={formIns} // 获取表单实例
         initialValues={{ phone: '', code: '' }} // 表单默认值
       >
@@ -66,9 +80,9 @@ const Login = function Login(props) {
           label="验证码"
           rules={[{ validator: validate.code }]}
           extra={
-            <Button size="small" color="primary" onClick={send}>
-              发送验证码
-            </Button>
+            <ButtonAgain size="small" color="primary" onClick={send} disabled={disabled}>
+              {sendText}
+            </ButtonAgain>
           }
         >
           <Input />
