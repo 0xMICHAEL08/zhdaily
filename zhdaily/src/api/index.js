@@ -37,12 +37,18 @@ const login = (phone, code) => {
   });
 };
 
+// 获取登陆者信息
+const queryUserInfo = () => http.get('/api/user_info');
+
 /* 暴露API */
 const api = {
   queryNewsLatest,
   queryNewsBefore,
   queryNewsInfo,
   queryStoryExtra,
+  sendPhoneCode,
+  login,
+  queryUserInfo,
 };
 
 export default api;
