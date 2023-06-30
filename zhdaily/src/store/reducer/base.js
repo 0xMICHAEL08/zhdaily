@@ -8,6 +8,10 @@ let initial = {
 export default function baseReducer(state = initial, action) {
   state = _.clone(state); // 使用深拷贝创建一个新的状态，而不会直接修改原始状态对象
   switch (action.type) {
+    // 更新登录者信息
+    case TYPES.BASE_INFO:
+      state.info = action.info;
+      break;
     default:
   }
   return state;

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Toast } from 'antd-mobile';
+import { connect } from 'react-redux';
+import action from '../store/action';
 import NavBarAgain from '../component/NavBarAgain';
 import ButtonAgain from '../component/ButtonAgain';
 import './Login.less';
@@ -25,6 +27,8 @@ const validate = {
 };
 
 const Login = function Login(props) {
+  let { queryUserInfoAsync, navigate, usp } = props; // 获取派发和路由工具
+  console.log(usp);
   /* 状态 */
   const [formIns] = Form.useForm(),
     [disabled, setDisabled] = useState(false),
@@ -37,17 +41,27 @@ const Login = function Login(props) {
       await formIns.validateFields(); // 不填参数，对每一项都做校验
       let { phone, code } = formIns.getFieldValue(); // 获取表单信息：{phone: '...', code: '...'}
       let { code: codeHttp, token } = await api.login(phone, code);
+
       // 登录失败
       if (+codeHttp !== 0) {
         Toast.show({
           icon: 'fail',
-          content: '登陆失败',
+          content: '登录失败',
         });
         formIns.resetFields(['code']);
         return;
       }
+
       // 登录成功：存储Token、存储登录者信息到redux、提示、跳转
-      _.storage.set('tabck', token); // localStorage中key值的意义越模糊越安全
+      _.storage.set('tabck', token); // 存储token
+      await queryUserInfoAsync(); // 派发任务，同步redux中的状态信息
+      Toast.show({
+        icon: 'success',
+        content: '登录/注册成功',
+      });
+
+      let to = usp.get('to'); // 获取http://xxx/?to=xxx中to的参数
+      to ? navigate(to, { replace: true }) : navigate(-1); // 跳转到 to 对应的页面，并且替换掉当前的历史记录
     } catch (_) {}
   };
 
@@ -128,4 +142,4 @@ const Login = function Login(props) {
   );
 };
 
-export default Login;
+export default connect(null, action.base)(Login);
