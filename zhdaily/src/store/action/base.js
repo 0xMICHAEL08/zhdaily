@@ -14,7 +14,7 @@ const baseAction = {
     } catch (error) {}
     return {
       type: TYPES.BASE_INFO,
-      info,
+      info
     };
   },
 
@@ -22,9 +22,9 @@ const baseAction = {
   clearUserInfo() {
     return {
       type: TYPES.BASE_INFO,
-      info: null,
+      info: null
     };
-  },
+  }
 };
 
 export default baseAction;

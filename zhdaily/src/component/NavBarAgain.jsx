@@ -10,7 +10,6 @@ const NavBarAgain = function NavBarAgain(props) {
   const navigate = useNavigate(),
     location = useLocation(),
     [usp] = useSearchParams();
-  console.log(location);
 
   const handleBack = () => {
     // 特殊情况：登录页 & to的值是/detail/xxx
