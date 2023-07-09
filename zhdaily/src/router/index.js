@@ -23,7 +23,6 @@ const isCheckLogin = path => {
 };
 
 const Element = function Element(props) {
-  console.log(store.getState());
   let { component: Component, meta, path } = props;
   let isShow = !isCheckLogin(path); // 需要做校验时，isShow初始值为false，即不显示目标页面并跳转登录页
   let [_, setRandom] = useState(0);

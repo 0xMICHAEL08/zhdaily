@@ -8,24 +8,24 @@ const queryNewsLatest = () => {
 };
 
 /* 获取往日新闻信息 */
-const queryNewsBefore = (time) => {
+const queryNewsBefore = time => {
   return http.get('/api/news_before', { params: { time } });
 };
 
 /* 获取新闻详情信息 */
-const queryNewsInfo = (id) => {
+const queryNewsInfo = id => {
   return http.get('/api/news_info', { params: { id } });
 };
 
 /* 获取新闻点赞信息 */
-const queryStoryExtra = (id) => {
+const queryStoryExtra = id => {
   return http.get('/api/story_extra', { params: { id } });
 };
 
 /* 发送验证码 */
-const sendPhoneCode = (phone) => {
+const sendPhoneCode = phone => {
   return http.post('/api/phone_code', {
-    phone,
+    phone
   });
 };
 
@@ -33,12 +33,44 @@ const sendPhoneCode = (phone) => {
 const login = (phone, code) => {
   return http.post('/api/login', {
     phone,
-    code,
+    code
   });
 };
 
-// 获取登陆者信息
+// 获取登录者信息
 const queryUserInfo = () => http.get('/api/user_info');
+
+// 收藏新闻
+const store = newsId => {
+  return http.post('/api/store', { newsId });
+};
+
+// 移除收藏
+const storeRemove = id => {
+  return http.get('/api/store_remove', {
+    params: {
+      id
+    }
+  });
+};
+
+// 获取登录者收藏列表
+const storeList = () => {
+  return http.get('/api/store_list');
+};
+
+// 上传图片
+const upload = file => {
+  return http.post('/api/upload', { file });
+};
+
+// 修改用户信息
+const userUpdate = (username, pic) => {
+  return http.post('/api/user_update', {
+    username,
+    pic
+  });
+};
 
 /* 暴露API */
 const api = {
@@ -49,6 +81,11 @@ const api = {
   sendPhoneCode,
   login,
   queryUserInfo,
+  store,
+  storeRemove,
+  storeList,
+  upload,
+  userUpdate
 };
 
 export default api;
