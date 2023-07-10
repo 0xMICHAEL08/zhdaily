@@ -11,6 +11,7 @@ const storeAction = {
         list = data;
       }
     } catch (_) {}
+
     return {
       type: TYPES.STORE_LIST,
       list

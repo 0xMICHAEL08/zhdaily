@@ -1,3 +1,5 @@
+/* 登录者信息相关action */
+
 import * as TYPES from '../action-types';
 import api from '../../api';
 

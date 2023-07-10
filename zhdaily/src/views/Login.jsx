@@ -28,7 +28,6 @@ const validate = {
 
 const Login = function Login(props) {
   let { queryUserInfoAsync, navigate, usp } = props; // 获取派发和路由工具
-  console.log(usp);
   /* 状态 */
   const [formIns] = Form.useForm(),
     [disabled, setDisabled] = useState(false),

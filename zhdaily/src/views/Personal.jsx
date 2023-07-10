@@ -34,7 +34,7 @@ const PersonalBox = styled.div`
     padding: 0 30px;
     height: 80px;
     line-height: 80px;
-    font-size: 24px;
+    font-size: 28px;
     color: #000;
     border-bottom: 2px solid #eee;
   }
@@ -43,13 +43,29 @@ const PersonalBox = styled.div`
 const Personal = function Personal(props) {
   let { info, clearUserInfo, clearStoreList, navigate } = props;
 
+  // 退出登录
+  const signout = () => {
+    // 清除redux中的信息
+    clearUserInfo();
+    clearStoreList();
+    // 清除token
+    _.storage.remove('tabck');
+    // 提示
+    Toast.show({
+      icon: 'success',
+      content: '您已安全退出'
+    });
+    // 跳转
+    navigate('/login?to=/personal', { replace: true });
+  };
+
   return (
     <PersonalBox>
       <NavBarAgain title="个人中心" />
       <div className="baseInfo">
         <Link to="/update">
-          <img className="pic" alt="" />
-          <p className="name">name</p>
+          <img className="pic" src={info.pic} alt="" />
+          <p className="name">{info.name}</p>
         </Link>
       </div>
       <div>
@@ -57,7 +73,7 @@ const Personal = function Personal(props) {
           我的收藏
           <RightOutline />
         </Link>
-        <div className="tab">
+        <div className="tab" onClick={signout}>
           退出登录
           <RightOutline />
         </div>
@@ -66,4 +82,7 @@ const Personal = function Personal(props) {
   );
 };
 
-export default Personal;
+export default connect(state => state.base, {
+  clearUserInfo: action.base.clearUserInfo,
+  clearStoreList: action.store.clearStoreList
+})(Personal);
