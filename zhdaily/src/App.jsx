@@ -2,11 +2,14 @@
 import React from 'react';
 import { HashRouter } from 'react-router-dom';
 import RouterView from './router/index';
+import { KeepAliveProvider } from 'keepalive-react-component';
 
 const App = function App() {
   return (
     <HashRouter>
-      <RouterView />
+      <KeepAliveProvider>
+        <RouterView />
+      </KeepAliveProvider>
     </HashRouter>
   );
 };
