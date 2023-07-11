@@ -40,6 +40,83 @@ const UpdateBox = styled.div`
 `;
 
 const Update = function Update(props) {
+  let { info, queryUserInfoAsync, navigate } = props;
+
+  /* 定义状态 */
+  let [pic, setPic] = useState([{ url: info.pic }]),
+    [username, setUserName] = useState(info.name);
+
+  /* 图片上传 */
+  const limitImage = file => {
+    let limit = 1 * 1024 * 1024;
+    if (file.size > limit) {
+      Toast.show({
+        icon: 'fail',
+        content: '图片须在1MB内'
+      });
+      return null;
+    }
+    return file;
+  };
+
+  const uploadImage = async file => {
+    let temp;
+    try {
+      console.log('开始上传');
+      let { code, pic } = await api.upload(file);
+      if (+code !== 0) {
+        Toast.show({
+          icon: 'fail',
+          content: '上传失败'
+        });
+      }
+      setPic([
+        {
+          url: pic
+        }
+      ]);
+      temp = pic;
+      console.log('上传成功');
+    } catch (_) {}
+    return { url: temp };
+  };
+
+  /* 提交信息 */
+  const submit = async () => {
+    // 表单校验
+    if (pic.length === 0) {
+      Toast.show({
+        icon: 'fail',
+        content: '请先上传图片'
+      });
+      return;
+    }
+    if (username.trim() === '') {
+      Toast.show({
+        icon: 'fail',
+        content: '请输入用户名'
+      });
+      return;
+    }
+    // 获取信息，发送请求
+    let [{ url }] = pic;
+    try {
+      let { code } = await api.userUpdate(username.trim(), url);
+      if (+code !== 0) {
+        Toast.show({
+          icon: 'fail',
+          content: '修改信息失败'
+        });
+        return;
+      }
+      Toast.show({
+        icon: 'success',
+        content: '修改信息成功'
+      });
+      queryUserInfoAsync(); // 同步redux中的信息
+      navigate(-1);
+    } catch (_) {}
+  };
 
   return (
     <UpdateBox>
@@ -48,7 +125,15 @@ const Update = function Update(props) {
         <div className="item">
           <div className="label">头像</div>
           <div className="input">
-            <ImageUploader/>
+            <ImageUploader
+              value={pic}
+              maxCount={1}
+              onDelete={() => {
+                setPic([]);
+              }}
+              beforeUpload={limitImage}
+              upload={uploadImage}
+            />
           </div>
         </div>
         <div className="item">
@@ -56,14 +141,19 @@ const Update = function Update(props) {
           <div className="input">
             <Input
               placeholder="请输入账号名称"
+              value={username}
+              onChange={val => {
+                setUserName(val); // 通过修改状态值带动视图渲染，达到近似的MVVM效果
+              }}
             />
           </div>
         </div>
-        <ButtonAgain color="primary" className="submit" >
+        <ButtonAgain color="primary" className="submit" onClick={submit}>
           提交
         </ButtonAgain>
       </div>
     </UpdateBox>
   );
 };
+
 export default connect(state => state.base, action.base)(Update);

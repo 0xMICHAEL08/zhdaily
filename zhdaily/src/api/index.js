@@ -59,9 +59,11 @@ const storeList = () => {
   return http.get('/api/store_list');
 };
 
-// 上传图片
+// 上传图片(要求formdata格式)
 const upload = file => {
-  return http.post('/api/upload', { file });
+  let fm = new FormData();
+  fm.append('file', file);
+  return http.post('/api/upload', fm);
 };
 
 // 修改用户信息
